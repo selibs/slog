@@ -1,4 +1,4 @@
-package slog;
+package s;
 
 using StringTools;
 
@@ -55,7 +55,7 @@ class Log {
 	}
 }
 
-@:access(slog.Log)
+@:access(s.Log)
 class Logger {
 	static inline function logFormatted(value:String, ?values:{}) {
 		for (f in Reflect.fields(values))
@@ -172,11 +172,11 @@ class Logger {
 	}
 
 	public inline function info(message:String) {
-		log('%Y($message)', INFO);
+		log('%B($message)', INFO);
 	}
 
 	public inline function warning(message:String) {
-		log('%O($message)', WARNING);
+		log('%Y($message)', WARNING);
 	}
 
 	public inline function error(message:String) {
