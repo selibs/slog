@@ -2,13 +2,6 @@ package s;
 
 using StringTools;
 
-@:forward()
-private abstract PosInfo(haxe.PosInfos) from haxe.PosInfos {
-	public function toString() {
-		return '${this.fileName}:${this.lineNumber}';
-	}
-}
-
 class Log {
 	#if (nodejs || sys)
 	#if log
@@ -263,4 +256,10 @@ enum abstract LogLevel(Int) to Int {
 			default: Std.string(this);
 		}
 	}
+}
+
+@:forward()
+extern private abstract PosInfo(haxe.PosInfos) from haxe.PosInfos {
+	public inline function toString()
+		return '${this.fileName}:${this.lineNumber}';
 }
