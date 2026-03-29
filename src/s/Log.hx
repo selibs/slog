@@ -39,7 +39,7 @@ class Log {
 		root.fatal(message);
 	}
 
-	public static inline function trace(message:String, level:LogLevel = DEBUG, ?pos:PosInfo) {
+	public static inline function trace(message:String, level:LogLevel = DEBUG, ?pos:haxe.PosInfos) {
 		root.trace(message, level, pos);
 	}
 
@@ -151,40 +151,32 @@ class Logger {
 		#end
 	}
 
-	inline function get_isClosed() {
+	inline function get_isClosed()
 		return file == null;
-	}
 	#else
-	public function new(name:String) {
+	public function new(name:String)
 		this.name = name;
-	}
 	#end
 
-	public inline function debug(message:String) {
-		log('%G($message)', DEBUG);
-	}
+	extern public inline function debug(message:String, ?pos:haxe.PosInfos)
+		this.trace('%G($message)', DEBUG, pos);
 
-	public inline function info(message:String) {
-		log('%B($message)', INFO);
-	}
+	extern public inline function info(message:String, ?pos:haxe.PosInfos)
+		this.trace('%B($message)', INFO, pos);
 
-	public inline function warning(message:String) {
-		log('%Y($message)', WARNING);
-	}
+	extern public inline function warning(message:String, ?pos:haxe.PosInfos)
+		this.trace('%Y($message)', WARNING, pos);
 
-	public inline function error(message:String) {
-		log('%R($message)', ERROR);
-	}
+	extern public inline function error(message:String, ?pos:haxe.PosInfos)
+		this.trace('%R($message)', ERROR, pos);
 
-	public inline function fatal(message:String) {
-		log('%RW($message)', FATAL);
-	}
+	extern public inline function fatal(message:String, ?pos:haxe.PosInfos)
+		this.trace('%RW($message)', FATAL, pos);
 
-	public inline function trace(message:String, level:LogLevel = DEBUG, ?pos:PosInfo) {
-		log('$pos $message', level);
-	}
+	extern public inline function trace(message:String, level:LogLevel = DEBUG, ?pos:haxe.PosInfos)
+		log('${pos.fileName}:${pos.lineNumber} $message', level);
 
-	public inline function log(message:String, level:LogLevel = DEBUG) {
+	extern public inline function log(message:String, level:LogLevel = DEBUG) {
 		#if log
 		if (this.level <= level) {
 			var output = logFormatted(format, {
@@ -217,36 +209,30 @@ enum abstract LogLevel(Int) to Int {
 	var FATAL;
 
 	@:op(a == b)
-	inline function eq(b:LogLevel) {
+	inline function eq(b:LogLevel)
 		return this == (b : Int);
-	}
 
 	@:op(a != b)
-	inline function neq(b:LogLevel) {
+	inline function neq(b:LogLevel)
 		return this != (b : Int);
-	}
 
 	@:op(a < b)
-	inline function lower(b:LogLevel) {
+	inline function lower(b:LogLevel)
 		return this < (b : Int);
-	}
 
 	@:op(a <= b)
-	inline function lowerEq(b:LogLevel) {
+	inline function lowerEq(b:LogLevel)
 		return this <= (b : Int);
-	}
 
 	@:op(a > b)
-	inline function greater(b:LogLevel) {
+	inline function greater(b:LogLevel)
 		return this > (b : Int);
-	}
 
 	@:op(a >= b)
-	inline function greaterEq(b:LogLevel) {
+	inline function greaterEq(b:LogLevel)
 		return this >= (b : Int);
-	}
 
-	public inline function toString() {
+	public inline function toString()
 		return switch this {
 			case DEBUG: "DEBUG";
 			case INFO: "INFO";
@@ -255,11 +241,4 @@ enum abstract LogLevel(Int) to Int {
 			case FATAL: "FATAL";
 			default: Std.string(this);
 		}
-	}
-}
-
-@:forward()
-extern private abstract PosInfo(haxe.PosInfos) from haxe.PosInfos {
-	public inline function toString()
-		return '${this.fileName}:${this.lineNumber}';
 }
