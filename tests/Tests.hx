@@ -1,6 +1,5 @@
 package tests;
 
-import s.Log;
 
 class Tests {
 	static function main() {

@@ -1,4 +1,4 @@
-package s;
+package;
 
 using StringTools;
 
@@ -19,36 +19,29 @@ class Log {
 
 	public static var root(default, null) = new Logger("ROOT");
 
-	public static inline function error(message:String) {
+	extern public static inline function error(message:String)
 		root.error(message);
-	}
 
-	public static inline function debug(message:String) {
+	extern public static inline function debug(message:String)
 		root.debug(message);
-	}
 
-	public static inline function warning(message:String) {
+	extern public static inline function warning(message:String)
 		root.warning(message);
-	}
 
-	public static inline function info(message:String) {
+	extern public static inline function info(message:String)
 		root.info(message);
-	}
 
-	public static inline function fatal(message:String) {
+	extern public static inline function fatal(message:String)
 		root.fatal(message);
-	}
 
-	public static inline function trace(message:String, level:LogLevel = DEBUG, ?pos:haxe.PosInfos) {
+	extern public static inline function trace(message:String, level:LogLevel = DEBUG, ?pos:haxe.PosInfos)
 		root.trace(message, level, pos);
-	}
 
-	public static inline function log(message:String, level:LogLevel = DEBUG) {
+	extern public static inline function log(message:String, level:LogLevel = DEBUG)
 		root.log(message, level);
-	}
 }
 
-@:access(s.Log)
+@:access(Log)
 class Logger {
 	static inline function logFormatted(value:String, ?values:{}) {
 		for (f in Reflect.fields(values))
@@ -158,20 +151,20 @@ class Logger {
 		this.name = name;
 	#end
 
-	extern public inline function debug(message:String, ?pos:haxe.PosInfos)
-		this.trace('%G($message)', DEBUG, pos);
+	extern public inline function debug(message:String)
+		log('%G($message)', DEBUG);
 
-	extern public inline function info(message:String, ?pos:haxe.PosInfos)
-		this.trace('%B($message)', INFO, pos);
+	extern public inline function info(message:String)
+		log('%B($message)', INFO);
 
-	extern public inline function warning(message:String, ?pos:haxe.PosInfos)
-		this.trace('%Y($message)', WARNING, pos);
+	extern public inline function warning(message:String)
+		log('%Y($message)', WARNING);
 
-	extern public inline function error(message:String, ?pos:haxe.PosInfos)
-		this.trace('%R($message)', ERROR, pos);
+	extern public inline function error(message:String)
+		log('%R($message)', ERROR);
 
-	extern public inline function fatal(message:String, ?pos:haxe.PosInfos)
-		this.trace('%RW($message)', FATAL, pos);
+	extern public inline function fatal(message:String)
+		log('%RW($message)', FATAL);
 
 	extern public inline function trace(message:String, level:LogLevel = DEBUG, ?pos:haxe.PosInfos)
 		log('${pos.fileName}:${pos.lineNumber} $message', level);
