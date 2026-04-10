@@ -19,25 +19,25 @@ class Log {
 
 	public static var root(default, null) = new Logger("ROOT");
 
-	extern public static inline function error(message:String)
+	extern public static inline function error(message:Any)
 		root.error(message);
 
-	extern public static inline function debug(message:String)
+	extern public static inline function debug(message:Any)
 		root.debug(message);
 
-	extern public static inline function warning(message:String)
+	extern public static inline function warning(message:Any)
 		root.warning(message);
 
-	extern public static inline function info(message:String)
+	extern public static inline function info(message:Any)
 		root.info(message);
 
-	extern public static inline function fatal(message:String)
+	extern public static inline function fatal(message:Any)
 		root.fatal(message);
 
-	extern public static inline function trace(message:String, level:LogLevel = DEBUG, ?pos:haxe.PosInfos)
+	extern public static inline function trace(message:Any, level:LogLevel = DEBUG, ?pos:haxe.PosInfos)
 		root.trace(message, level, pos);
 
-	extern public static inline function log(message:String, level:LogLevel = DEBUG)
+	extern public static inline function log(message:Any, level:LogLevel = DEBUG)
 		root.log(message, level);
 }
 
@@ -145,31 +145,35 @@ class Logger {
 	}
 
 	inline function get_isClosed()
+		#if log
 		return file == null;
+		#else
+		return true;
+		#end
 	#else
 	public function new(name:String)
 		this.name = name;
 	#end
 
-	extern public inline function debug(message:String)
+	extern public inline function debug(message:Any)
 		log('%G($message)', DEBUG);
 
-	extern public inline function info(message:String)
+	extern public inline function info(message:Any)
 		log('%B($message)', INFO);
 
-	extern public inline function warning(message:String)
+	extern public inline function warning(message:Any)
 		log('%Y($message)', WARNING);
 
-	extern public inline function error(message:String)
+	extern public inline function error(message:Any)
 		log('%R($message)', ERROR);
 
-	extern public inline function fatal(message:String)
+	extern public inline function fatal(message:Any)
 		log('%RW($message)', FATAL);
 
-	extern public inline function trace(message:String, level:LogLevel = DEBUG, ?pos:haxe.PosInfos)
+	extern public inline function trace(message:Any, level:LogLevel = DEBUG, ?pos:haxe.PosInfos)
 		log('${pos.fileName}:${pos.lineNumber} $message', level);
 
-	extern public inline function log(message:String, level:LogLevel = DEBUG) {
+	extern public inline function log(message:Any, level:LogLevel = DEBUG) {
 		#if log
 		if (this.level <= level) {
 			var output = logFormatted(format, {
