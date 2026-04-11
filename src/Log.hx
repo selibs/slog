@@ -176,21 +176,15 @@ class Logger {
 	extern public inline function log(message:Any, level:LogLevel = DEBUG) {
 		#if log
 		if (this.level <= level) {
-			var output = logFormatted(format, {
-				datetime: DateTools.format(Date.now(), "%H:%M:%S"),
-				level: level.toString(),
-				name: name,
-				message: message
-			});
-			#if (nodejs || sys)
-			Sys.println(output.formatted);
-			#elseif js
 			var out = logFormatted(format, {
 				datetime: DateTools.format(Date.now(), "%H:%M:%S"),
 				level: level.toString(),
 				name: name,
 				message: message
 			});
+			#if (nodejs || sys)
+			Sys.println(out.formatted);
+			#elseif js
 			js.Syntax.code("console.log").apply(null, [out.msg].concat(out.styles));
 			#end
 		}
