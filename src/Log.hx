@@ -173,23 +173,23 @@ class Logger {
 	extern public inline function trace(message:Any, level:LogLevel = DEBUG, ?pos:haxe.PosInfos)
 		log('${pos.fileName}:${pos.lineNumber} $message', level);
 
-	extern public inline function log(message:Any, level:LogLevel = DEBUG) {
+	extern public inline function log(message:Any, level:LogLevel = DEBUG)
 		#if log
-		if (this.level <= level) {
-			var out = logFormatted(format, {
-				datetime: DateTools.format(Date.now(), "%H:%M:%S"),
-				level: level.toString(),
-				name: name,
-				message: message
-			});
-			#if (nodejs || sys)
-			Sys.println(out.formatted);
-			#elseif js
-			js.Syntax.code("console.log").apply(null, [out.msg].concat(out.styles));
-			#end
-		}
+		if (this.level <= level)
+			for (line in Std.string(message).split("\n")) {
+				var out = logFormatted(format, {
+					datetime: DateTools.format(Date.now(), "%H:%M:%S"),
+					level: level.toString(),
+					name: name,
+					message: line
+				});
+				#if (nodejs || sys)
+				Sys.println(out.formatted);
+				#elseif js
+				js.Syntax.code("console.log").apply(null, [out.msg].concat(out.styles));
+				#end
+			}
 		#end
-	}
 }
 
 enum abstract LogLevel(Int) to Int {
