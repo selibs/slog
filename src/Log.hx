@@ -17,7 +17,7 @@ class Log {
 	}
 	#end
 
-	public static var root(default, null) = new Logger("ROOT");
+	public static var root(default, null) = new Logger("LOG");
 
 	extern public static inline function error(message:Any)
 		root.error(message);
@@ -43,12 +43,69 @@ class Log {
 
 @:access(Log)
 class Logger {
-	static inline function logFormatted(value:String, ?values:{}) {
+	static function replaceTokens(value:String, ?values:{}):String {
+		if (values == null)
+			return value;
 		for (f in Reflect.fields(values))
-			value = value.replace('{$f}', Std.string(Reflect.field(values, f)));
+			value = StringTools.replace(value, '{$f}', Std.string(Reflect.field(values, f)));
+		return value;
+	}
 
-		var original = value;
-		var regex = new EReg("%([RGBOYW]+)\\(([^\\)]*)\\)", "g");
+	static function mapFormattedSegments(value:String, onSegment:String->String->String):String {
+		var out = new StringBuf();
+		var i = 0;
+		final len = value.length;
+
+		while (i < len) {
+			if (value.charAt(i) != "%") {
+				out.add(value.charAt(i));
+				++i;
+				continue;
+			}
+
+			var flagsStart = i + 1;
+			var flagsEnd = flagsStart;
+			while (flagsEnd < len) {
+				final ch = value.charAt(flagsEnd);
+				if (ch == "R" || ch == "G" || ch == "B" || ch == "O" || ch == "Y" || ch == "W")
+					++flagsEnd;
+				else
+					break;
+			}
+
+			if (flagsEnd == flagsStart || flagsEnd >= len || value.charAt(flagsEnd) != "(") {
+				out.add("%");
+				++i;
+				continue;
+			}
+
+			var depth = 1;
+			var j = flagsEnd + 1;
+			while (j < len && depth > 0) {
+				final ch = value.charAt(j);
+				if (ch == "(")
+					++depth;
+				else if (ch == ")")
+					--depth;
+				++j;
+			}
+
+			if (depth != 0) {
+				out.add(value.substr(i, len - i));
+				break;
+			}
+
+			final flags = value.substring(flagsStart, flagsEnd);
+			final text = value.substring(flagsEnd + 1, j - 1);
+			out.add(onSegment(flags, text));
+			i = j;
+		}
+
+		return out.toString();
+	}
+
+	static inline function logFormatted(value:String, ?values:{}) {
+		var original = replaceTokens(value, values);
 
 		#if (nodejs || sys)
 		var ansiMap = [
@@ -67,11 +124,8 @@ class Logger {
 			];
 			return '${codes.join("")}$text\x1b[0m';
 		}
-		var formatted = regex.map(original, re -> {
-			return wrapStyle(re.matched(1), re.matched(2));
-		});
-
-		var clear = regex.map(original, re -> re.matched(2));
+		var formatted = mapFormattedSegments(original, wrapStyle);
+		var clear = mapFormattedSegments(original, (_, text) -> text);
 
 		return {
 			clear: clear,
@@ -94,11 +148,11 @@ class Logger {
 			].join("");
 
 		var styles:Array<String> = [];
-		var msg = regex.map(original, re -> {
-			final css = cssFromFlags(re.matched(1));
+		var msg = mapFormattedSegments(original, (flags, text) -> {
+			final css = cssFromFlags(flags);
 			styles.push(css);
 			styles.push("");
-			return '%c${re.matched(2)}%c';
+			return '%c${text}%c';
 		});
 
 		return {
