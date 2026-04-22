@@ -117,7 +117,7 @@ class Logger {
 			"W" => "\x1b[1m"
 		];
 
-		inline function wrapStyle(flags:String, text:String):String {
+		function wrapStyle(flags:String, text:String):String {
 			var codes = [
 				for (i in 0...flags.length)
 					if (ansiMap.exists(flags.charAt(i))) ansiMap.get(flags.charAt(i))
@@ -227,7 +227,7 @@ class Logger {
 	extern public inline function trace(message:Any, level:LogLevel = DEBUG, ?pos:haxe.PosInfos)
 		log('${pos.fileName}:${pos.lineNumber} $message', level);
 
-	extern public inline function log(message:Any, level:LogLevel = DEBUG)
+	extern public inline function log(message:Any, level:LogLevel = DEBUG) {
 		#if log
 		if (this.level <= level)
 			for (line in Std.string(message).split("\n")) {
@@ -244,6 +244,7 @@ class Logger {
 				#end
 			}
 		#end
+	}
 }
 
 enum abstract LogLevel(Int) to Int {
